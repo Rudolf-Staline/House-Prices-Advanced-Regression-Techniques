@@ -119,6 +119,39 @@ The first baseline intentionally prioritizes reliability and reproducibility:
 9. Fit the best baseline on the full training set.
 10. Predict on the test set and apply `expm1`.
 
+
+## Advanced pipeline
+
+The V2 advanced pipeline keeps the baseline intact and adds a stronger, Kaggle-oriented workflow designed to improve the log-RMSE score:
+
+- domain-aware missing-value handling where absent basement, garage, fireplace, pool, fence, alley, and veneer values are encoded explicitly;
+- engineered area, bathroom, age, binary indicator, and quality-interaction features;
+- manual ordinal encoding for quality/exposure/finish variables;
+- `log1p` transformation of strongly right-skewed numeric predictors while avoiding binary and ordinal variables;
+- regularized models (`Ridge`, `Lasso`, `ElasticNet`), boosted models (`GradientBoostingRegressor`, `HistGradientBoostingRegressor`), and optional `XGBoost`/`LightGBM` if installed;
+- a simple normalized weighted blend in addition to the best single model.
+
+From the project folder, generate the advanced submissions with:
+
+```bash
+cd projects/kaggle-house-prices
+python -m src.submit_advanced
+```
+
+The script evaluates available models with 5-fold CV RMSE on the log target, prints a sorted score table, fits the best single model, fits the blend models, validates submissions, and writes:
+
+```text
+projects/kaggle-house-prices/data/submissions/submission_advanced_best_single.csv
+projects/kaggle-house-prices/data/submissions/submission_advanced_blend.csv
+```
+
+Difference versus the baseline:
+
+| Pipeline | Preprocessing | Models | Output |
+| --- | --- | --- | --- |
+| V1 baseline | generic median/`Missing` imputation + one-hot encoding | Ridge, RandomForest | `submission_baseline.csv` |
+| V2 advanced | domain imputation + engineered features + ordinal encoding + skew correction | Ridge, Lasso, ElasticNet, boosting, optional XGBoost/LightGBM, blend | `submission_advanced_best_single.csv`, `submission_advanced_blend.csv` |
+
 ## Current limitations
 
 - Missing values are handled generically instead of using domain-specific meaning.
