@@ -14,6 +14,24 @@ from .features import prepare_features
 from .model import fit_best_model, save_model, train_baseline_models
 
 
+def validate_submission(submission: pd.DataFrame, test_df: pd.DataFrame) -> None:
+    """Validate the generated Kaggle submission before saving it."""
+    expected_columns = ["Id", "SalePrice"]
+    if list(submission.columns) != expected_columns:
+        raise ValueError(f"Submission columns must be exactly {expected_columns}.")
+
+    if len(submission) != len(test_df):
+        raise ValueError(
+            f"Submission row count ({len(submission)}) must equal test rows ({len(test_df)})."
+        )
+
+    if submission["SalePrice"].isna().any():
+        raise ValueError("Submission contains missing SalePrice predictions.")
+
+    if not (submission["SalePrice"] > 0).all():
+        raise ValueError("Submission predictions must all be positive.")
+
+
 def create_submission() -> pd.DataFrame:
     """Train baseline models and write a Kaggle-compatible submission CSV."""
     train_df, test_df = load_train_test()
@@ -23,12 +41,12 @@ def create_submission() -> pd.DataFrame:
     print("Cross-validation scores (RMSE on log target):")
     print(scores.to_string(index=False))
 
-    model = fit_best_model(X_train, y)
+    model = fit_best_model(X_train, y, scores=scores)
     save_model(model, MODEL_PATH)
 
     predictions_log = model.predict(X_test)
     predictions = np.expm1(predictions_log)
-    predictions = np.maximum(predictions, 0)
+    predictions = np.maximum(predictions, 1e-9)
 
     submission = pd.DataFrame(
         {
@@ -36,6 +54,8 @@ def create_submission() -> pd.DataFrame:
             "SalePrice": predictions,
         }
     )
+
+    validate_submission(submission, test_df)
 
     SUBMISSION_PATH.parent.mkdir(parents=True, exist_ok=True)
     submission.to_csv(SUBMISSION_PATH, index=False)

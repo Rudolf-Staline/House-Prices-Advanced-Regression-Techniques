@@ -19,6 +19,7 @@ Les données ne sont pas versionnées dans Git.
 Le prétraitement est volontairement simple et robuste :
 
 - séparation de la cible `SalePrice` ;
+- conservation de `Id` uniquement pour le fichier de soumission, pas comme variable modèle ;
 - transformation de la cible avec `log1p(SalePrice)` ;
 - concaténation temporaire de train/test pour garantir un encodage cohérent ;
 - imputation des variables numériques par la médiane ;
@@ -37,16 +38,25 @@ Deux modèles de baseline sont prévus :
 
 Le score est calculé avec une validation croisée 5-fold et la métrique `neg_root_mean_squared_error` sur la cible logarithmique.
 
-Le score exact dépend des fichiers Kaggle locaux et sera affiché par :
+Scores obtenus localement après exécution du pipeline sur les fichiers Kaggle officiels (`train.csv` et `test.csv`) :
+
+| Modèle | CV RMSE log 5-fold |
+| --- | ---: |
+| RandomForestRegressor | 0.144940 |
+| Ridge Regression | 0.149150 |
+
+Commande utilisée :
 
 ```bash
 cd projects/kaggle-house-prices
 python -m src.submit
 ```
 
+Score public Kaggle : non renseigné, car aucune soumission Kaggle n'a été effectuée dans cette session.
+
 ## Modèle retenu
 
-Le script compare les scores de validation croisée et entraîne automatiquement le modèle ayant le plus faible RMSE moyen sur `log1p(SalePrice)`.
+Le script compare les scores de validation croisée et entraîne automatiquement le modèle ayant le plus faible RMSE moyen sur `log1p(SalePrice)`. Avec les résultats ci-dessus, le modèle retenu est `RandomForestRegressor`.
 
 ## Fichier de soumission généré
 
