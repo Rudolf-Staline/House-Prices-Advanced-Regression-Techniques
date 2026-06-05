@@ -14,6 +14,7 @@ def prepare_features(
     The preprocessing intentionally stays simple and robust for a first
     reproducible baseline:
     - remove the target from training features;
+    - remove `Id` from model features while preserving it in the original data;
     - concatenate train and test features before encoding;
     - fill numeric missing values with the train/test median;
     - fill categorical missing values with the explicit value `Missing`;
@@ -27,6 +28,18 @@ def prepare_features(
     y = np.log1p(train_df[target_col])
     train_features = train_df.drop(columns=[target_col]).copy()
     test_features = test_df.copy()
+
+    # `Id` is an identifier needed for the final Kaggle submission, not a
+    # predictive feature. Keep it in the original dataframes and exclude it
+    # from all model matrices.
+    id_cols = [
+        col
+        for col in ["Id"]
+        if col in train_features.columns or col in test_features.columns
+    ]
+    if id_cols:
+        train_features = train_features.drop(columns=id_cols, errors="ignore")
+        test_features = test_features.drop(columns=id_cols, errors="ignore")
 
     n_train = len(train_features)
     combined = pd.concat([train_features, test_features], axis=0, ignore_index=True)

@@ -53,10 +53,23 @@ def train_baseline_models(X: pd.DataFrame, y: pd.Series) -> pd.DataFrame:
     return pd.DataFrame(results).sort_values("cv_rmse_log").reset_index(drop=True)
 
 
-def fit_best_model(X: pd.DataFrame, y: pd.Series):
-    """Fit the best baseline model on all training data and return it."""
-    scores = train_baseline_models(X, y)
-    best_name = str(scores.iloc[0]["model"])
+def best_model_name(scores: pd.DataFrame) -> str:
+    """Return the model name with the lowest cross-validated RMSE."""
+    if scores.empty:
+        raise ValueError("Cannot select a model from an empty score table.")
+    return str(scores.sort_values("cv_rmse_log").iloc[0]["model"])
+
+
+def fit_best_model(X: pd.DataFrame, y: pd.Series, scores: pd.DataFrame | None = None):
+    """Fit the best baseline model on all training data and return it.
+
+    Pass precomputed scores to avoid running cross-validation more than once.
+    If scores are omitted, they are computed for convenience.
+    """
+    if scores is None:
+        scores = train_baseline_models(X, y)
+
+    best_name = best_model_name(scores)
     model = _candidate_models()[best_name]
     model.fit(X, y)
     return model
