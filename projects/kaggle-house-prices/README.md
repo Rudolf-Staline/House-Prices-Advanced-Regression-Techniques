@@ -154,10 +154,19 @@ Difference versus the baseline:
 
 ## Current limitations
 
+### V1 baseline limitations
+
 - Missing values are handled generically instead of using domain-specific meaning.
 - Numeric skew is not corrected beyond the target transformation.
 - Feature engineering is minimal.
-- Hyperparameters are simple baseline defaults.
+- The model search is limited to Ridge and RandomForest with simple defaults.
+
+### V2 advanced pipeline limitations
+
+- Hyperparameters are still manually chosen defaults rather than the result of a systematic search.
+- No explicit influential-outlier removal is applied yet.
+- The blend is a fixed weighted average, not an out-of-fold stacking model.
+- Optional XGBoost and LightGBM models run only when those packages are installed locally.
 - No model interpretation is included yet.
 
 ## Next improvements
