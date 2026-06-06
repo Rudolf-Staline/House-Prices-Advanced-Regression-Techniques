@@ -69,54 +69,40 @@ Ces dépendances ne sont pas obligatoires : si elles sont absentes, le script le
 
 ## Tableau CV RMSE log
 
-À compléter après exécution avec les fichiers Kaggle locaux :
-
-| Modèle | CV RMSE log |
-| --- | ---: |
-| ElasticNet | à compléter |
-| Lasso | à compléter |
-| Ridge | à compléter |
-| GradientBoostingRegressor | à compléter |
-| HistGradientBoostingRegressor | à compléter |
-| XGBoost | optionnel |
-| LightGBM | optionnel |
-
-Commande :
+Résultats obtenus localement avec :
 
 ```bash
 cd projects/kaggle-house-prices
 python -m src.submit_advanced
 ```
 
+| Modèle | CV RMSE log |
+| --- | ---: |
+| Lasso | 0.126678 |
+| ElasticNet | 0.126809 |
+| GradientBoostingRegressor | 0.128875 |
+| Ridge | 0.130698 |
+| HistGradientBoostingRegressor | 0.133612 |
+
+XGBoost et LightGBM n'étaient pas installés dans l'environnement local d'exécution ; ils ont donc été ignorés par le script optionnel.
+
 ## Meilleur modèle single
 
-À compléter après exécution locale. Le script trie le tableau CV et entraîne automatiquement le modèle avec le plus faible RMSE log.
+Le meilleur modèle single est **Lasso**, avec un score CV RMSE log de **0.126678**. Le script V2 l'a donc réentraîné sur tout le jeu d'entraînement avant de générer `submission_advanced_best_single.csv`.
 
 ## Blend utilisé
 
-Blend par défaut si seuls les modèles obligatoires sont disponibles :
+Blend effectivement utilisé après normalisation sur les modèles disponibles localement :
 
-| Modèle | Poids initial |
+| Modèle | Poids normalisé |
 | --- | ---: |
-| ElasticNet | 0.25 |
-| Lasso | 0.20 |
-| Ridge | 0.10 |
-| GradientBoostingRegressor | 0.25 |
-| HistGradientBoostingRegressor | 0.20 |
+| ElasticNet | 0.250 |
+| Lasso | 0.200 |
+| Ridge | 0.100 |
+| GradientBoostingRegressor | 0.250 |
+| HistGradientBoostingRegressor | 0.200 |
 
-Blend proposé si XGBoost et LightGBM sont disponibles :
-
-| Modèle | Poids initial |
-| --- | ---: |
-| ElasticNet | 0.15 |
-| Lasso | 0.10 |
-| Ridge | 0.05 |
-| GradientBoostingRegressor | 0.20 |
-| HistGradientBoostingRegressor | 0.15 |
-| XGBoost | 0.20 |
-| LightGBM | 0.15 |
-
-Les poids sont toujours normalisés sur les modèles effectivement entraînés.
+La somme des poids normalisés vaut `1.000`. XGBoost et LightGBM étaient absents, donc le script a utilisé le blend par défaut des modèles obligatoires.
 
 ## Fichiers de soumission générés
 
